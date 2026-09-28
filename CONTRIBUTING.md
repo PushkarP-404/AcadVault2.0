@@ -56,7 +56,21 @@ npm run dev
 
 Make your changes in the local repository. Be sure to follow the existing coding style and structure of the project.
 
-### 7. Commit your Changes
+### 7. Run the Tests
+
+Before committing your changes, make sure to run the test suite to ensure nothing was broken. We use Jest and React Testing Library.
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode (useful during development)
+npm run test:watch
+```
+
+If you are adding a new feature or fixing a bug, please include tests for your changes.
+
+### 8. Commit your Changes
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages. This leads to more readable messages that are easy to follow when looking through the project history.
 
@@ -91,7 +105,7 @@ git add .
 git commit -m "feat: add new awesome feature"
 ```
 
-### 8. Push to your Fork
+### 9. Push to your Fork
 
 Push your committed changes to your fork on GitHub:
 
@@ -99,7 +113,7 @@ Push your committed changes to your fork on GitHub:
 git push origin your-branch-name
 ```
 
-### 9. Create a Pull Request
+### 10. Create a Pull Request
 
 Go to the original `AcadVault2.0` repository on GitHub. You will see a prompt to create a Pull Request from your recently pushed branch. Provide a clear and detailed description of the changes you've made, referencing any relevant issues.
 
