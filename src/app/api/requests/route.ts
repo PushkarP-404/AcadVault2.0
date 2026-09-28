@@ -4,9 +4,9 @@ import { uploadFile, type UploadableFile } from "@/lib/drive-operations";
 import { UnapprovedMaterial } from "@/models/material.model";
 import { Request as MaterialRequest } from "@/models/request.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
-import { getCurrentUser } from "@/lib/server-helper-functions";
+import { getCurrentUser, withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async () => {
+export const GET = withApiAuth(async (_req: NextRequest) => {
     try {
         await connectMongoDB();
         const requests = await MaterialRequest.find({})
@@ -20,9 +20,9 @@ export const GET = async () => {
             error: error instanceof Error ? error.message : "Unknown error",
         });
     }
-};
+}, { resourceManager: true });
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiAuth(async (req: NextRequest) => {
     try {
         const formData = await req.formData();
         const user = await getCurrentUser();
@@ -89,4 +89,4 @@ export const POST = async (req: NextRequest) => {
             error: error instanceof Error ? error.message : "Unknown error",
         });
     }
-};
+});

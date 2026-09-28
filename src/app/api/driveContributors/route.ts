@@ -3,8 +3,9 @@ import { Request } from "@/models/request.model";
 import { User } from "@/models/user.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
 import type { ContributorStats } from "@/types";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async (_req: NextRequest) => {
+export const GET = withApiAuth(async (_req: NextRequest) => {
     try {
         await connectMongoDB();
 
@@ -36,4 +37,4 @@ export const GET = async (_req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

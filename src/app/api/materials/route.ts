@@ -6,8 +6,9 @@ import { connectMongoDB } from "@/lib/mongodb.config";
 import { MATERIAL_TYPES, MATERIAL_CATEGORIES } from "@/lib/constants";
 import type { FilterQuery } from "mongoose";
 import type { MaterialDoc } from "@/types";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async (request: NextRequest) => {
+export const GET = withApiAuth(async (request: NextRequest) => {
     try {
         const { searchParams } = request.nextUrl;
         const courseName = searchParams.get("courseName");
@@ -69,4 +70,4 @@ export const GET = async (request: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

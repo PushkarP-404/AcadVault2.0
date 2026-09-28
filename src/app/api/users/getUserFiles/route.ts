@@ -2,14 +2,20 @@ import { NextResponse, type NextRequest } from "next/server";
 import { ApprovedMaterial } from "@/models/material.model";
 import { Request } from "@/models/request.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
+import { getCurrentUser, withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async (req: NextRequest) => {
+export const GET = withApiAuth(async (req: NextRequest) => {
     const { searchParams } = req.nextUrl;
     const email = searchParams.get("email");
 
     try {
         if (!email) {
-            return NextResponse.json({ success: false, error: "Email is required" });
+            return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
+        }
+
+        const user = await getCurrentUser();
+        if (user?.email?.toLowerCase() !== email.toLowerCase()) {
+            return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
         }
 
         await connectMongoDB();
@@ -32,4 +38,4 @@ export const GET = async (req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

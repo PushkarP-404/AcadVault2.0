@@ -3,8 +3,9 @@ import { Request } from "@/models/request.model";
 import "@/models/material.model";
 import { User } from "@/models/user.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async (req: NextRequest) => {
+export const GET = withApiAuth(async (req: NextRequest) => {
     try {
         const { searchParams } = req.nextUrl;
         const email = searchParams.get("email");
@@ -39,4 +40,4 @@ export const GET = async (req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

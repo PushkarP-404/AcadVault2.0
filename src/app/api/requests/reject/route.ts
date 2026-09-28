@@ -3,20 +3,19 @@ import { Request as MaterialRequest } from "@/models/request.model";
 import { NextResponse, type NextRequest } from "next/server";
 import { moveFile } from "@/lib/drive-operations";
 import { connectMongoDB } from "@/lib/mongodb.config";
-import { getCurrentUser, isResourceManager } from "@/lib/server-helper-functions";
+import { getCurrentUser, withApiAuth } from "@/lib/server-helper-functions";
 
 interface RejectBody {
     requestID: string;
 }
 
-export const PUT = async (req: NextRequest) => {
+export const PUT = withApiAuth(async (req: NextRequest) => {
     const { requestID } = (await req.json()) as RejectBody;
 
     try {
         const user = await getCurrentUser();
         if (!user) throw new Error("User not found");
         const approverID = user.id;
-        if (!(await isResourceManager(approverID))) throw new Error("User not authorized");
         await connectMongoDB();
 
         const materialRequest = await MaterialRequest.findOne({ _id: requestID });
@@ -56,4 +55,4 @@ export const PUT = async (req: NextRequest) => {
             error: error instanceof Error ? error.message : "Unknown error",
         });
     }
-};
+}, { resourceManager: true });

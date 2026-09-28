@@ -3,20 +3,19 @@ import { Request as MaterialRequest } from "@/models/request.model";
 import { NextResponse, type NextRequest } from "next/server";
 import { deleteFile } from "@/lib/drive-operations";
 import { connectMongoDB } from "@/lib/mongodb.config";
-import { getCurrentUser, isResourceManager } from "@/lib/server-helper-functions";
+import { getCurrentUser, withApiAuth } from "@/lib/server-helper-functions";
 
 interface DeleteBody {
     requestID: string;
 }
 
-export const DELETE = async (req: NextRequest) => {
+export const DELETE = withApiAuth(async (req: NextRequest) => {
     const { requestID } = (await req.json()) as DeleteBody;
 
     try {
         const user = await getCurrentUser();
         if (!user) throw new Error("User not found");
         const deleterID = user.id;
-        if (!(await isResourceManager(deleterID))) throw new Error("User not authorized");
         await connectMongoDB();
 
         const materialRequest = await MaterialRequest.findOne({ _id: requestID });
@@ -42,4 +41,4 @@ export const DELETE = async (req: NextRequest) => {
             error: error instanceof Error ? error.message : "Unknown error",
         });
     }
-};
+}, { resourceManager: true });

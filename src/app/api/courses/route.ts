@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { Course } from "@/models/course.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
 import { createFolder } from "@/lib/drive-operations";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
 interface CourseFilter {
     courseName?: string | null;
@@ -13,7 +14,7 @@ interface CreateCourseBody {
     categoryCode?: string;
 }
 
-export const GET = async (request: NextRequest) => {
+export const GET = withApiAuth(async (request: NextRequest) => {
     try {
         const { searchParams } = request.nextUrl;
         let courseName: string | null = searchParams.get("courseName");
@@ -38,9 +39,9 @@ export const GET = async (request: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});
 
-export const POST = async (request: NextRequest) => {
+export const POST = withApiAuth(async (request: NextRequest) => {
     try {
         const { courseName, categoryCode } = (await request.json()) as CreateCourseBody;
         await connectMongoDB();
@@ -71,4 +72,4 @@ export const POST = async (request: NextRequest) => {
             { status: 500 },
         );
     }
-};
+}, { resourceManager: true });
