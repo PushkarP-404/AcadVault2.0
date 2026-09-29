@@ -2,10 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-interface MaterialRequestSummary {
-    status: string;
-}
-
 const FooterStats = () => {
     const [totalUsers, setTotalUsers] = useState<number>(0);
     const [totalMaterials, setTotalMaterials] = useState<number>(0);
@@ -14,18 +10,15 @@ const FooterStats = () => {
     const fetchData = async () => {
         try {
             const usersResponse = await fetch("/api/users/");
-            const materialResponse = await fetch("/api/requests/");
+            const materialResponse = await fetch("/api/materials/");
             const usersData = (await usersResponse.json()) as { success: boolean; data: number };
             const materialData = (await materialResponse.json()) as {
                 success: boolean;
-                data: MaterialRequestSummary[];
+                data: unknown[];
             };
 
             if (usersData.success) setTotalUsers(usersData.data);
-            if (materialData.success)
-                setTotalMaterials(
-                    materialData.data.filter((item) => item.status === "APPROVED").length,
-                );
+            if (materialData.success) setTotalMaterials(materialData.data.length);
 
             setLoading(false);
         } catch (err) {
@@ -36,7 +29,7 @@ const FooterStats = () => {
 
     useEffect(() => {
         fetchData();
-    });
+    }, []);
 
     if (loading) {
         return <span>Loading... </span>;
