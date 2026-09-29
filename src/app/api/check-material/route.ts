@@ -3,6 +3,7 @@ import { connectMongoDB } from "@/lib/mongodb.config";
 import { ApprovedMaterial, UnapprovedMaterial } from "@/models/material.model";
 import type { HydratedDocument } from "mongoose";
 import type { MaterialDoc } from "@/types";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
 interface CheckMaterialBody {
     courseName: string;
@@ -12,7 +13,7 @@ interface CheckMaterialBody {
     exam?: string;
 }
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiAuth(async (req: NextRequest) => {
     try {
         await connectMongoDB();
         const { courseName, materialType, year, number, exam } =
@@ -63,4 +64,4 @@ export const POST = async (req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

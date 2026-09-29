@@ -1,4 +1,5 @@
 import { getServerSession, type Session } from "next-auth";
+import { NextResponse, type NextRequest } from "next/server";
 import { authOptions } from "@/lib/next-auth.config";
 import type { FilenameInput } from "@/types";
 
@@ -33,7 +34,29 @@ export const getCurrentUser = async (): Promise<Session["user"] | null> => {
     return session.user;
 };
 
+type ApiRouteHandler = (request: NextRequest) => Promise<Response>;
+
+export const withApiAuth = (
+    handler: ApiRouteHandler,
+    options: { resourceManager?: boolean } = {},
+): ApiRouteHandler =>
+    async (request: NextRequest) => {
+        const user = await getCurrentUser();
+        if (!user) {
+            return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 });
+        }
+
+        if (options.resourceManager && !(await isResourceManager(user.id))) {
+            return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
+        }
+
+        return handler(request);
+    };
+
 export const isResourceManager = async (id: string | undefined | null): Promise<boolean> => {
     if (!id) return false;
-    return Boolean(process.env.RESOURCE_MANAGERS?.includes(id));
+    return (process.env.RESOURCE_MANAGERS ?? "")
+        .split(",")
+        .map((managerID) => managerID.trim())
+        .includes(id);
 };

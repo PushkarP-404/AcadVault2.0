@@ -1,15 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { User } from "@/models/user.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
+import { getCurrentUser, withApiAuth } from "@/lib/server-helper-functions";
 
 interface UpdateUsernameBody {
     email: string;
     username: string;
 }
 
-export const POST = async (req: NextRequest) => {
+export const POST = withApiAuth(async (req: NextRequest) => {
     try {
         const { email, username } = (await req.json()) as UpdateUsernameBody;
+        const user = await getCurrentUser();
+        if (user?.email?.toLowerCase() !== email.toLowerCase()) {
+            return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
+        }
+
         await connectMongoDB();
         const userDatabase = await User.findOne({ email });
         if (!userDatabase) {
@@ -26,4 +32,4 @@ export const POST = async (req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});

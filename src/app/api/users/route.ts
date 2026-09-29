@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { User } from "@/models/user.model";
 import { connectMongoDB } from "@/lib/mongodb.config";
+import { withApiAuth } from "@/lib/server-helper-functions";
 
-export const GET = async (_req: NextRequest) => {
+export const GET = withApiAuth(async (_req: NextRequest) => {
     try {
         await connectMongoDB();
         const users = await User.countDocuments();
@@ -14,4 +15,4 @@ export const GET = async (_req: NextRequest) => {
             { status: 500 },
         );
     }
-};
+});
